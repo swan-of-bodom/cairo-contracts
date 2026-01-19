@@ -1,16 +1,12 @@
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
-use core::poseidon::poseidon_hash_span;
-use core::starknet::secp256_trait::Secp256PointTrait;
-use openzeppelin_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin_account::EthAccountComponent;
-use openzeppelin_account::interface::EthPublicKey;
-use openzeppelin_account::utils::signature::EthSignature;
+use core::hash::{HashStateExTrait, HashStateTrait};
+use core::poseidon::{PoseidonTrait, poseidon_hash_span};
+use openzeppelin_account::utils::signature::Secp256Signature;
+use openzeppelin_interfaces::accounts::EthPublicKey;
 use openzeppelin_testing::constants::TRANSACTION_HASH;
-use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_testing::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
-use snforge_std::EventSpy;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
+use starknet::secp256_trait::Secp256PointTrait;
 use starknet::{ContractAddress, SyscallResultTrait};
 
 #[derive(Drop)]
@@ -18,7 +14,7 @@ pub struct SignedTransactionData {
     pub private_key: u256,
     pub public_key: EthPublicKey,
     pub tx_hash: felt252,
-    pub signature: EthSignature
+    pub signature: Secp256Signature,
 }
 
 pub fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionData {
@@ -28,12 +24,12 @@ pub fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionData {
         private_key: key_pair.secret_key,
         public_key: key_pair.public_key,
         tx_hash,
-        signature: EthSignature { r, s }
+        signature: Secp256Signature { r, s },
     }
 }
 
 pub fn get_accept_ownership_signature(
-    account_address: ContractAddress, current_owner: EthPublicKey, new_key_pair: Secp256k1KeyPair
+    account_address: ContractAddress, current_owner: EthPublicKey, new_key_pair: Secp256k1KeyPair,
 ) -> Span<felt252> {
     let msg_hash: u256 = PoseidonTrait::new()
         .update_with('StarkNet Message')
@@ -49,25 +45,23 @@ pub fn get_accept_ownership_signature(
 #[generate_trait]
 pub impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {
     fn assert_event_owner_removed(
-        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey
+        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey,
     ) {
         let removed_owner_guid = get_guid_from_public_key(public_key);
-        let expected = EthAccountComponent::Event::OwnerRemoved(
-            OwnerRemoved { removed_owner_guid }
-        );
+        let expected = ExpectedEvent::new().key(selector!("OwnerRemoved")).key(removed_owner_guid);
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_event_owner_added(
-        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey
+        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey,
     ) {
         let new_owner_guid = get_guid_from_public_key(public_key);
-        let expected = EthAccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
+        let expected = ExpectedEvent::new().key(selector!("OwnerAdded")).key(new_owner_guid);
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_owner_added(
-        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey
+        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey,
     ) {
         self.assert_event_owner_added(contract, public_key);
         self.assert_no_events_left_from(contract);

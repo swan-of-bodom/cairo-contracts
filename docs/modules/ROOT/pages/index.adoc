@@ -4,6 +4,8 @@
 
 = Contracts for Cairo
 
+include::./utils/_common.adoc[]
+
 *A library for secure smart contract development* written in Cairo for {starknet}. This library consists of a set of xref:components.adoc[reusable components] to build custom smart contracts, as well as
 ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers] and xref:/api/testing.adoc[test utilities]
 that facilitate testing with Starknet Foundry.
@@ -21,9 +23,9 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.7.0 (e9a2b8716 2024-08-01)
-cairo: 2.7.0 (https://crates.io/crates/cairo-lang-compiler/2.7.0)
-sierra: 1.6.0
+scarb 2.13.1 (dc0dbfd50 2025-09-15)
+cairo: 2.13.1 (https://crates.io/crates/cairo-lang-compiler/2.13.1)
+sierra: 1.7.0
 ----
 
 === Set up your project
@@ -53,15 +55,60 @@ Scarb.toml src
 
 === Install the library
 
+:versioning: xref:index.adoc#versioning_of_the_sub_packages[Versioning of the sub-packages]
+
+[IMPORTANT]
+====
+The `openzeppelin` package is an umbrella (meta) package that aggregates all library subpackages. Prior to v3.x, the umbrella and its subpackages were
+versioned in lockstep—their versions always matched. Starting with v3.x, following the introduction of `openzeppelin_interfaces`, the umbrella is
+versioned independently from some of the subpackages.
+
+See the {versioning} section for more information.
+====
+
 Install the library by declaring it as a dependency in the project's `Scarb.toml` file:
 
-[,text]
+[,javascript]
 ----
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0" }
+openzeppelin = "3.0.0"
 ----
 
-WARNING: Make sure the tag matches the target release.
+The previous example would import the entire library. We can also add each package as a separate dependency to
+improve the building time by not including modules that won't be used:
+
+[,javascript,subs=+attributes]
+----
+[dependencies]
+openzeppelin_access = "3.0.0"
+openzeppelin_token = "3.0.0"
+openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
+----
+
+== Versioning of the sub-packages
+
+Here you can find a reference of the versioning of the sub-packages for this umbrella version:
+
+[,javascript,subs=+attributes]
+----
+[dependencies]
+openzeppelin_access = "3.0.0"
+openzeppelin_token = "3.0.0"
+openzeppelin_access = "3.0.0"
+openzeppelin_account = "3.0.0"
+openzeppelin_finance = "3.0.0"
+openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
+openzeppelin_governance = "3.0.0"
+openzeppelin_introspection = "3.0.0"
+openzeppelin_merkle_tree = "3.0.0"
+openzeppelin_presets = "3.0.0"
+openzeppelin_security = "3.0.0"
+openzeppelin_token = "3.0.0"
+openzeppelin_upgrades = "3.0.0"
+
+openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
+openzeppelin_utils = "{current_openzeppelin_utils_version}"
+----
 
 == Basic usage
 
@@ -72,7 +119,9 @@ Copy the code into `src/lib.cairo`.
 ----
 #[starknet::contract]
 mod MyERC20Token {
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    // NOTE: If you added the entire library as a dependency,
+    // use `openzeppelin::token` instead.
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

@@ -3,14 +3,25 @@ pub mod erc1155;
 pub mod erc20;
 pub mod erc721;
 pub mod eth_account;
+pub mod meta_tx_v0;
+pub mod vesting;
 
 pub use account::AccountUpgradeableABI;
 pub use account::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
-pub use erc1155::ERC1155UpgradeableABI;
-pub use erc1155::{ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait};
-pub use erc20::ERC20UpgradeableABI;
-pub use erc20::{ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait};
-pub use erc721::ERC721UpgradeableABI;
-pub use erc721::{ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait};
-pub use eth_account::EthAccountUpgradeableABI;
-pub use eth_account::{EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait};
+pub use erc1155::{
+    ERC1155UpgradeableABI, ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait,
+};
+pub use erc20::{
+    ERC20UpgradeableABI, ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait,
+};
+pub use erc721::{
+    ERC721UpgradeableABI, ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait,
+};
+pub use eth_account::{
+    EthAccountUpgradeableABI, EthAccountUpgradeableABIDispatcher,
+    EthAccountUpgradeableABIDispatcherTrait,
+};
+pub use meta_tx_v0::{
+    MetaTransactionV0ABI, MetaTransactionV0ABIDispatcher, MetaTransactionV0ABIDispatcherTrait,
+};
+pub use vesting::{VestingWalletABI, VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};

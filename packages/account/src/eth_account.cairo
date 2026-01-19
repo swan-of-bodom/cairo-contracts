@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0 (account/src/eth_account.cairo)
 
 /// # EthAccount Component
 ///
@@ -9,43 +9,42 @@ pub mod EthAccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::{PoseidonTrait, poseidon_hash_span};
-    use core::starknet::secp256_trait::Secp256PointTrait;
-    use openzeppelin_account::interface::EthPublicKey;
-    use openzeppelin_account::interface;
-    use openzeppelin_account::utils::secp256k1::Secp256k1PointStorePacking;
-    use openzeppelin_account::utils::{MIN_TRANSACTION_VERSION, QUERY_OFFSET};
-    use openzeppelin_account::utils::{execute_calls, is_valid_eth_signature};
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin_interfaces::accounts as interface;
+    use openzeppelin_interfaces::accounts::EthPublicKey;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
+    use openzeppelin_utils::execution::execute_single_call;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
-    use starknet::get_caller_address;
-    use starknet::get_contract_address;
-    use starknet::get_tx_info;
+    use starknet::secp256_trait::Secp256PointTrait;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::utils::secp256_point::Secp256PointStorePacking;
+    use crate::utils::{is_tx_version_valid, is_valid_eth_signature};
 
     #[storage]
-    struct Storage {
-        EthAccount_public_key: EthPublicKey
+    pub struct Storage {
+        pub EthAccount_public_key: EthPublicKey,
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         OwnerAdded: OwnerAdded,
-        OwnerRemoved: OwnerRemoved
+        OwnerRemoved: OwnerRemoved,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerAdded {
         #[key]
-        pub new_owner_guid: felt252
+        pub new_owner_guid: felt252,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerRemoved {
         #[key]
-        pub removed_owner_guid: felt252
+        pub removed_owner_guid: felt252,
     }
 
     pub mod Errors {
@@ -64,47 +63,36 @@ pub mod EthAccountComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::ISRC6<ComponentState<TContractState>> {
         /// Executes a list of calls from the account.
         ///
         /// Requirements:
         ///
         /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
-        /// - If the transaction is a simulation (version than `QUERY_OFFSET`), it must be
+        /// - If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
         /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
-        fn __execute__(
-            self: @ComponentState<TContractState>, mut calls: Array<Call>
-        ) -> Array<Span<felt252>> {
+        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
-            let sender = get_caller_address();
+            let sender = starknet::get_caller_address();
             assert(sender.is_zero(), Errors::INVALID_CALLER);
+            assert(is_tx_version_valid(), Errors::INVALID_TX_VERSION);
 
-            // Check tx version
-            let tx_info = get_tx_info().unbox();
-            let tx_version: u256 = tx_info.version.into();
-            // Check if tx is a query
-            if (tx_version >= QUERY_OFFSET) {
-                assert(
-                    QUERY_OFFSET + MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION
-                );
-            } else {
-                assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
+            for call in calls.span() {
+                execute_single_call(call);
             }
-
-            execute_calls(calls)
         }
 
         /// Verifies the validity of the signature for the current transaction.
         /// This function is used by the protocol to verify `invoke` transactions.
-        fn __validate__(self: @ComponentState<TContractState>, mut calls: Array<Call>) -> felt252 {
+        fn __validate__(self: @ComponentState<TContractState>, calls: Array<Call>) -> felt252 {
             self.validate_transaction()
         }
 
         /// Verifies that the given signature is valid for the given hash.
         fn is_valid_signature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>,
         ) -> felt252 {
             if self._is_valid_signature(hash, signature.span()) {
                 starknet::VALIDATED
@@ -119,12 +107,12 @@ pub mod EthAccountComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IDeclarer<ComponentState<TContractState>> {
         /// Verifies the validity of the signature for the current transaction.
         /// This function is used by the protocol to verify `declare` transactions.
         fn __validate_declare__(
-            self: @ComponentState<TContractState>, class_hash: felt252
+            self: @ComponentState<TContractState>, class_hash: felt252,
         ) -> felt252 {
             self.validate_transaction()
         }
@@ -135,7 +123,7 @@ pub mod EthAccountComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IEthDeployable<ComponentState<TContractState>> {
         /// Verifies the validity of the signature for the current transaction.
         /// This function is used by the protocol to verify `deploy_account` transactions.
@@ -143,7 +131,7 @@ pub mod EthAccountComponent {
             self: @ComponentState<TContractState>,
             class_hash: felt252,
             contract_address_salt: felt252,
-            public_key: EthPublicKey
+            public_key: EthPublicKey,
         ) -> felt252 {
             self.validate_transaction()
         }
@@ -154,7 +142,7 @@ pub mod EthAccountComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IEthPublicKey<ComponentState<TContractState>> {
         /// Returns the current public key of the account.
         fn get_public_key(self: @ComponentState<TContractState>) -> EthPublicKey {
@@ -172,7 +160,7 @@ pub mod EthAccountComponent {
         fn set_public_key(
             ref self: ComponentState<TContractState>,
             new_public_key: EthPublicKey,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) {
             self.assert_only_self();
 
@@ -192,10 +180,10 @@ pub mod EthAccountComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::ISRC6CamelOnly<ComponentState<TContractState>> {
         fn isValidSignature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>,
         ) -> felt252 {
             SRC6::is_valid_signature(self, hash, signature)
         }
@@ -207,7 +195,7 @@ pub mod EthAccountComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IEthPublicKeyCamel<ComponentState<TContractState>> {
         fn getPublicKey(self: @ComponentState<TContractState>) -> EthPublicKey {
             self.EthAccount_public_key.read()
@@ -216,7 +204,7 @@ pub mod EthAccountComponent {
         fn setPublicKey(
             ref self: ComponentState<TContractState>,
             newPublicKey: EthPublicKey,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) {
             PublicKey::set_public_key(ref self, newPublicKey, signature);
         }
@@ -227,12 +215,10 @@ pub mod EthAccountComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::EthAccountABI<ComponentState<TContractState>> {
         // ISRC6
-        fn __execute__(
-            self: @ComponentState<TContractState>, calls: Array<Call>
-        ) -> Array<Span<felt252>> {
+        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             SRC6::__execute__(self, calls)
         }
 
@@ -241,21 +227,21 @@ pub mod EthAccountComponent {
         }
 
         fn is_valid_signature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>,
         ) -> felt252 {
             SRC6::is_valid_signature(self, hash, signature)
         }
 
         // ISRC6CamelOnly
         fn isValidSignature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>,
         ) -> felt252 {
             SRC6CamelOnly::isValidSignature(self, hash, signature)
         }
 
         // IDeclarer
         fn __validate_declare__(
-            self: @ComponentState<TContractState>, class_hash: felt252
+            self: @ComponentState<TContractState>, class_hash: felt252,
         ) -> felt252 {
             Declarer::__validate_declare__(self, class_hash)
         }
@@ -265,7 +251,7 @@ pub mod EthAccountComponent {
             self: @ComponentState<TContractState>,
             class_hash: felt252,
             contract_address_salt: felt252,
-            public_key: EthPublicKey
+            public_key: EthPublicKey,
         ) -> felt252 {
             Deployable::__validate_deploy__(self, class_hash, contract_address_salt, public_key)
         }
@@ -278,7 +264,7 @@ pub mod EthAccountComponent {
         fn set_public_key(
             ref self: ComponentState<TContractState>,
             new_public_key: EthPublicKey,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) {
             PublicKey::set_public_key(ref self, new_public_key, signature);
         }
@@ -291,14 +277,14 @@ pub mod EthAccountComponent {
         fn setPublicKey(
             ref self: ComponentState<TContractState>,
             newPublicKey: EthPublicKey,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) {
             PublicKeyCamel::setPublicKey(ref self, newPublicKey, signature);
         }
 
         // ISRC5
         fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252
+            self: @ComponentState<TContractState>, interface_id: felt252,
         ) -> bool {
             let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)
@@ -314,10 +300,11 @@ pub mod EthAccountComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
-        /// Initializes the account by setting the initial public key
-        /// and registering the ISRC6 interface Id.
+        /// Initializes the account with the given public key, and registers the ISRC6 interface ID.
+        ///
+        /// Emits an `OwnerAdded` event.
         fn initializer(ref self: ComponentState<TContractState>, public_key: EthPublicKey) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::ISRC6_ID);
@@ -326,8 +313,8 @@ pub mod EthAccountComponent {
 
         /// Validates that the caller is the account itself. Otherwise it reverts.
         fn assert_only_self(self: @ComponentState<TContractState>) {
-            let caller = get_caller_address();
-            let self = get_contract_address();
+            let caller = starknet::get_caller_address();
+            let self = starknet::get_contract_address();
             assert(self == caller, Errors::UNAUTHORIZED);
         }
 
@@ -343,12 +330,12 @@ pub mod EthAccountComponent {
             self: @ComponentState<TContractState>,
             current_owner: EthPublicKey,
             new_owner: EthPublicKey,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) {
             let message_hash = PoseidonTrait::new()
                 .update_with('StarkNet Message')
                 .update_with('accept_ownership')
-                .update_with(get_contract_address())
+                .update_with(starknet::get_contract_address())
                 .update_with(current_owner.get_coordinates().unwrap_syscall())
                 .finalize();
 
@@ -359,7 +346,7 @@ pub mod EthAccountComponent {
         /// Validates the signature for the current transaction.
         /// Returns the short string `VALID` if valid, otherwise it reverts.
         fn validate_transaction(self: @ComponentState<TContractState>) -> felt252 {
-            let tx_info = get_tx_info().unbox();
+            let tx_info = starknet::get_tx_info().unbox();
             let tx_hash = tx_info.transaction_hash;
             let signature = tx_info.signature;
             assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);
@@ -379,7 +366,7 @@ pub mod EthAccountComponent {
         /// Returns whether the given signature is valid for the given hash
         /// using the account's current public key.
         fn _is_valid_signature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>
+            self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>,
         ) -> bool {
             let public_key: EthPublicKey = self.EthAccount_public_key.read();
             is_valid_eth_signature(hash, public_key, signature)

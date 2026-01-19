@@ -1,3 +1,2 @@
-pub mod erc20_votes;
-
-pub use erc20_votes::ERC20VotesComponent;
+pub mod erc20_wrapper;
+pub mod erc4626;

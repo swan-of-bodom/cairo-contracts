@@ -1,21 +1,15 @@
 # OpenZeppelin Contracts for Cairo
 
 [![Lint and test](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml)
+[![License](https://img.shields.io/github/license/OpenZeppelin/cairo-contracts)](https://github.com/OpenZeppelin/cairo-contracts/blob/main/LICENSE)
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-yellow)](https://docs.openzeppelin.com/contracts-cairo/1.0.0/)
 
 **A library for secure smart contract development** written in Cairo for [Starknet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
-> **Warning**
-> This repo contains highly experimental code.
-> It has no code coverage checks.
-> It hasn't been audited.
-> **Use at your own risk.**
+> [!TIP]
+> :mage: **Not sure how to get started?** Check out [Contracts Wizard for Cairo](https://wizard.openzeppelin.com/cairo) — an interactive smart contract generator.
 
 ## Usage
-
-> **Warning**
-> Expect rapid iteration.
-> Some contracts or features are not ready to be deployed.
-> Check the **Unsupported** section below.
 
 ### Prepare the environment
 
@@ -43,14 +37,14 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0" }
+openzeppelin = "3.0.0"
 ```
 
-The previous example would import the entire library. we can also add each package as a separated dependency to improve the time for building by not including modules that won't be used:
+The previous example would import the entire library. We can also add each package as a separate dependency to improve the building time by not including modules that won't be used:
 
 ```toml
 [dependencies]
-openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0" }
+openzeppelin_token = "3.0.0"
 ```
 
 Build the project to download it:
@@ -72,8 +66,7 @@ For example, this is how to write an ERC20-compliant contract:
 ```cairo
 #[starknet::contract]
 mod MyToken {
-    // If only the token package was added as a dependency, use `openzeppelin_token::` instead
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -111,32 +104,17 @@ mod MyToken {
 }
 ```
 
-### Unsupported
-
-[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.15.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
-
 ## Learn
 
-<!-- ### Documentation
+### Documentation
 
-Check out the [full documentation site](https://docs.openzeppelin.com/contracts-cairo)! Featuring:
-
-- [Accounts](https://docs.openzeppelin.com/contracts-cairo/0.6.1/accounts)
-- [ERC20](https://docs.openzeppelin.com/contracts-cairo/0.6.1/erc20)
-- [ERC721](https://docs.openzeppelin.com/contracts-cairo/0.6.1/erc721)
-- [ERC1155](https://docs.openzeppelin.com/contracts-cairo/0.6.1/erc1155)
-- [Contract extensibility pattern](https://docs.openzeppelin.com/contracts-cairo/0.6.1/extensibility)
-- [Proxies and upgrades](https://docs.openzeppelin.com/contracts-cairo/0.6.1/proxies)
-- [Security](https://docs.openzeppelin.com/contracts-cairo/0.6.1/security)
-- [Utilities](https://docs.openzeppelin.com/contracts-cairo/0.6.1/utilities) -->
+Check out the [full documentation site](https://docs.openzeppelin.com/contracts-cairo)!
 
 ### Cairo
 
 - [Cairo book](https://book.cairo-lang.org/)
 - [Cairo language documentation](https://docs.cairo-lang.org/)
-- [Starknet book](https://book.starknet.io/)
-- [Starknet documentation](https://docs.starknet.io/documentation/)
-- [Cairo 1.0 mini-docs](https://github.com/Starknet-Africa-Edu/Cairo1.0)
+- [Starknet documentation](https://docs.starknet.io/)
 - [Cairopractice](https://cairopractice.com/)
 
 ### Tooling
@@ -145,7 +123,8 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 
 ## Development
 
-> **Note**: You can track our roadmap and future milestones in our [Github Project](https://github.com/orgs/OpenZeppelin/projects/29/).
+> [!NOTE]
+> You can track our roadmap and future milestones in our [Github Project](https://github.com/orgs/OpenZeppelin/projects/29/).
 
 OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software, make sure to check out the [contribution](CONTRIBUTING.md) guide in advance.
 
@@ -172,10 +151,15 @@ snforge test -w
 
 ## Security
 
-> ⚠️ Warning! ⚠️
-> This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
+This project is maintained by OpenZeppelin with the goal of providing a secure and reliable library of smart contract components
+for the Starknet ecosystem. We address security through risk management in various areas such as engineering and open source best
+practices, scoping and API design, multi-layered review processes, and incident response preparedness.
 
 Refer to [SECURITY.md](SECURITY.md) for more details.
+
+Past audits can be found in [`audits/`](./audits).
+
+Smart contracts are an evolving technology and carry a high level of technical risk and uncertainty. Although OpenZeppelin is well known for its security audits, using OpenZeppelin Contracts for Cairo is not a substitute for a security audit.
 
 ## License
 

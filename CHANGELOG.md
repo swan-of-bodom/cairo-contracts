@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD024 -->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -7,6 +8,347 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+### Added
+
+- ERC-6909 standard implementation and extensions (#1594)
+  - Introduced ERC6909Component and extension components: ERC6909ContentURIComponent, ERC6909MetadataComponent, and ERC6909TokenSupplyComponent.
+  - Added standard interfaces: IERC6909, IERC6909Metadata, IERC6909TokenSupply, and IERC6909ContentUri.
+  - Added the ERC6909ABI trait, covering the full ERC-6909 token functionality, including all supported extensions.
+
+- Integration of ERC-6909 components into the with_components macro (#1594)
+- `IERC1155Supply` interface and `ERC1155SupplyComponent` extension for total supply tracking (#1632)
+- `IERC721Wrapper` interface to `openzeppelin_interfaces::token::erc721` (#1625)
+- `ERC721WrapperComponent` providing ERC721 wrapping and unwrapping functionality (#1625)
+- `IERC20Wrapper` interface in `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)
+- `ERC20WrapperComponent` providing ERC20 wrapping and unwrapping functionality (#1617)
+
+## Changed
+
+- Bump scarb to v2.15.1 (#1631)
+
+## 3.0.0 (2025-12-11)
+
+### Added
+
+- AccessControlDefaultAdminRules (#1567):
+  - `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY` constant exposed in the component ImmutableConfig.
+  - `maximum_default_admin_transfer_delay` getter to the `IAccessControlDefaultAdminRules` interface.
+- `execute_single_call`, `execute_calls` and `assert_valid_signature` to openzeppelin_utils::execution (#1531)
+- MetaTransactionV0 preset, interface, and dispatchers (#1512)
+- Embeddable `ERC2981AdminAccessControlDefaultAdminRulesImpl` implementation providing admin functions for a `ERC2981` token based on `AccessControlDefaultAdminRules` component (#1516)
+- `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
+- AccessControlDefaultAdminRules interface and component (#1432)
+
+### Changed
+
+- Bump scarb to 2.13.1 (#1565)
+- Decoupled openzeppelin_utils version from the umbrella package (#1531)
+- Removed openzeppelin_governance dependency on openzeppelin_account (#1531)
+- Removed openzeppelin_token dependency on openzeppelin_account (#1531)
+- `GovernorComponent` and its extensions support voting tokens that follow the `ERC6372` clock standard (#1417)
+
+### Changed (Breaking)
+
+- `GovernorComponent` proposal state resolution at snapshot timepoint changed from Active to Pending (#1606)
+- Removed `execute_single_call`, `execute_calls` and `assert_valid_signature` from openzeppelin_account::utils (#1531)
+- `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)
+
+## 3.0.0-alpha.3 (2025-10-9)
+
+### Added
+
+- `execute_single_call`, `execute_calls` and `assert_valid_signature` to openzeppelin_utils::execution (#1531)
+
+### Changed
+
+- Decoupled openzeppelin_utils version from the umbrella package (#1531)
+- Removed openzeppelin_governance dependency on openzeppelin_account (#1531)
+- Removed openzeppelin_token dependency on openzeppelin_account (#1531)
+
+### Changed (Breaking)
+
+- Removed `execute_single_call`, `execute_calls` and `assert_valid_signature` from openzeppelin_account::utils (#1531)
+
+## 3.0.0-alpha.2 (2025-09-10)
+
+### Added
+
+- MetaTransactionV0 preset, interface, and dispatchers (#1512)
+- Embeddable `ERC2981AdminAccessControlDefaultAdminRulesImpl` implementation providing admin functions for a `ERC2981` token based on `AccessControlDefaultAdminRules` component (#1516)
+
+## 3.0.0-alpha.1 (2025-08-18)
+
+### Added
+
+- `AssetsManagementTrait` defining how assets are managed in `ERC4626Component` (#1454)
+- `openzeppelin_interfaces` package (#1463)
+
+### Changed
+
+- Bump scarb to 2.12.0 (#1463)
+
+### Changed (Breaking)
+
+- `ERC4626Component` now supports alternative asset management strategies (e.g., external vault) via the added `AssetsManagementTrait` (#1454)
+- `ERC4626Component` now supports charging fees in shares as well as in assets via the refactored `FeeConfigTrait` (#1452)
+- Additional input parameters were added to the `ERC4626HooksTrait` functions (#1452)
+- Moved interfaces, ABIs and dispatchers into `openzeppelin_interfaces` (#1463)
+  - Some structs and types that were defined inside interface files were also moved
+
+## 3.0.0-alpha.0 (2025-07-18)
+
+### Added
+
+- `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
+- AccessControlDefaultAdminRules interface and component (#1432)
+
+### Changed
+
+- `GovernorComponent` and its extensions support voting tokens that follow the `ERC6372` clock standard (#1417)
+
+### Changed (Breaking)
+
+- `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)
+
+## 2.0.0 (2025-06-18)
+
+### Added
+
+- ERC4626Component (#1170)
+- The openzeppelin_macros package with the `with_components` macro (#1282)
+- Support for granting a role with delay in AccessControl component (#1317)
+- The `type_hash` macro (#1399)
+- Enable Governor modules in the `with_components` macro (#1414)
+- `Math::u256_mul_div` (#1170)
+
+### Changed
+
+- Bump scarb to v2.11.4 (#1373)
+
+### Changed (Breaking)
+
+- Add SRC-107 to ERC20Component (#1294)
+  - `decimals` are now configurable using the ImmutableConfig trait
+- Update UDC interface and preset for backward compatibility with v1 (#1371)
+  - Change `from_zero` argument to `not_from_zero` in both the interface and the
+    ContractDeployed event
+  - Add `deployContract` function to the preset
+  - Update salt hashing algorithm from Poseidon to Pedersen
+- Update ISRC6 interface to match latest changes reflected in the SNIP (#1383)
+  - `__execute__` entry point now doesn't return any value
+  - Account and EthAccount components SRC6 implementation updated accordingly
+
+## 2.0.0-alpha.1 (2025-04-26)
+
+### Added
+
+- The `type_hash` macro (#1399)
+- Enable Governor modules in the `with_components` macro (#1414)
+
+## 2.0.0-alpha.0 (2025-03-20)
+
+### Added
+
+- Support for granting a role with delay in AccessControl component (#1317)
+- The openzeppelin_macros package with the `with_components` macro (#1282)
+- ERC4626Component (#1170)
+- `Math::u256_mul_div` (#1170)
+
+### Changed
+
+- Bump scarb to v2.11.1 (#1373)
+- Bump scarb to v2.10.1 (#1358)
+
+### Changed (Breaking)
+
+- Add SRC-107 to ERC20Component (#1294)
+  - `decimals` are now configurable using the ImmutableConfig trait
+- Update UDC interface and preset for backward compatibility with v1 (#1371)
+  - Change `from_zero` argument to `not_from_zero` in both the interface and the
+    ContractDeployed event
+  - Add `deployContract` function to the preset
+  - Update salt hashing algorithm from Poseidon to Pedersen
+- Update ISRC6 interface to match latest changes reflected in the SNIP (#1383)
+  - `__execute__` entry point now doesn't return any value
+  - Account and EthAccount components SRC6 implementation updated accordingly
+
+## 1.0.0 (2025-02-21)
+
+### Added
+
+- ERC721Component `initializer_no_metadata` (#1278)
+- ERC1155Component `initializer_no_metadata` (#1287)
+- Unsigned trait restriction to the `average` function (#1310)
+
+### Changed (Breaking)
+
+- Bump scarb to v2.9.4 (#1336)
+
+### Fixed (Breaking)
+
+- SNIP12 TimelockComponent `hash_operation` to use `hash_operation_batch` for single-call operations (#1313)
+- Permit and Message SNIP12 type hashes (#1283)
+
+### Fixed
+
+- Multisig component issue arising when removing signers with unchanged quorum (#1315)
+- Governor timelock extension salt generation panicking on overflow (#1306)
+- SignersInfoStorePacking issue with bit operations (#1316)
+- Message type hash in SNIP12 doc (#1274)
+
+## 0.20.0 (2024-12-06)
+
+### Added
+
+- SRC9 (Outside Execution) integration to account presets (#1201)
+- `SNIP12HashSpanImpl` to `openzeppelin_utils::cryptography::snip12` (#1180)
+- GovernorComponent with the following extensions: (#1180)
+  - GovernorCoreExecutionComponent
+  - GovernorCountingSimpleComponent
+  - GovernorSettingsComponent
+  - GovernorTimelockExecutionComponent
+  - GovernorVotesQuorumFractionComponent
+  - GovernorVotesComponent
+- `is_tx_version_valid` utility function to `openzeppelin_account::utils` (#1224)
+
+### Changed
+
+- Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
+- Remove `mut` from `calls` param in `__execute__` function of Account and EthAccount components (#1224)
+- Remove `mut` from `calls` param in `__validate__` function of Account and EthAccount components (#1224)
+
+### Changed (Breaking)
+
+- Bump snforge_std to v0.34.0 (#1239)
+- Bump scarb to v2.9.1 (#1239)
+- The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
+- Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
+- VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)
+- VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
+- Bump snforge_std to v0.33.0 (#1203)
+
+### Fixed
+
+- Scarb manifest dependencies (#1249):
+  - Move `openzeppelin_utils` from dev dep to dep in governance manifest
+  - Remove `openzeppelin_utils` as dep in access package
+  - Change `openzeppelin_account` to `crate` in `src9.cairo`
+
+## 0.19.0 (2024-11-08)
+
+### Added
+
+- Multisig component (#1193)
+- `is_valid_p256_signature` utility function to `openzeppelin_account::utils::signature` (#1189)
+- `Secp256r1KeyPair` type and helpers to `openzeppelin_testing::signing` (#1189)
+- `all_tokens_of_owner` function to `ERC721EnumerableComponent` fetching all owner's tokens in a single call (#1196)
+- Embeddable impls for ERC2981 component (#1173)
+  - `ERC2981Info` with read functions for discovering the component's state
+  - `ERC2981AdminOwnable` providing admin functions for a token that implements Ownable component
+  - `ERC2981AdminAccessControl` providing admin functions for a token that implements AccessControl component
+
+### Changed (Breaking)
+
+- Refactor `openzeppelin_account::utils::secp256k1` module to `openzeppelin_account::utils::secp256_point` (#1189)
+  - `Secp256k1PointStorePacking` replaced by a generic `Secp256PointStorePacking`
+  - `Secp256k1PointPartialEq` replaced by a generic `Secp256PointPartialEq`
+  - `DebugSecp256k1Point` replaced by a generic `DebugSecp256Point`
+- Apply underscore pattern to the internal functions of `ERC2981Component` to prevent collisions
+with new external functions (#1173)
+- Move `Hash` and `PartialEq` impls of `Call` struct from `openzeppelin_governance::timelock::utils` to `openzeppelin_governance::utils` (#1193)
+
+## 0.18.0 (2024-10-17)
+
+### Added
+
+- `VotesComponent` with implementation for ERC721 and ERC20 tokens (#1114)
+- `IUpgradeAndCall` interface (#1148)
+- `upgrade_and_call` function in UpgradeableComponent's InternalImpl (#1148)
+- `ERC20Permit` impl for `ERC20Component` facilitating token approvals via off-chain signatures (#1140)
+- `ISNIP12Metadata` interface for discovering name and version of a SNIP-12 impl (#1140)
+- `SNIP12MetadataExternal` impl of `ISNIP12Metadata` interface for `ERC20Component` (#1140)
+
+### Changed
+
+- Bump scarb to v2.8.4 (#1146)
+
+### Changed (Breaking)
+
+- Remove `ERC20Votes` component in favor of `VotesComponent` (#1114)
+  - `Trace` is now declared as a `storage_node` and now uses `Vec` instead of `StorageArray`.
+  - `delegate_by_sig` `signature` param in the `IVotes` interface updated from `Array<felt252>` to `Span<felt252>`.
+- Remove `StorageArray` from `openzeppelin_utils` (#1114)
+- Bump snforge to 0.31.0
+- Remove openzeppelin_utils::selectors (#1163)
+- Remove `DualCase dispatchers` (#1163)
+  - Remove `try_selector_with_fallback` from `openzeppelin_utils`
+  - Remove `unwrap_and_cast` module from `openzeppelin_utils`
+  - Remove `openzeppelin_access::accesscontrol::dual_accesscontrol`
+  - Remove `openzeppelin_access::ownable::dual_ownable`
+  - Remove `openzeppelin_account::dual_account`
+  - Remove `openzeppelin_account::dual_eth_account`
+  - Remove `openzeppelin_token::erc20::dual20`
+  - Remove `openzeppelin_token::erc721::dual721`
+  - Remove `openzeppelin_token::erc721::dual721_receiver`
+  - Remove `openzeppelin_token::erc1155::dual1155`
+  - Remove `openzeppelin_token::erc1155::dual1155_receiver`
+- `SRC9Component` now uses `ISRC6Dispatcher` instead of `DualCaseAccount` (#1163)
+- `ERC20VotesComponent` now uses `ISRC6Dispatcher` instead of `DualCaseAccount` (#1163)
+- `ERC721Component` now uses `IERC721ReceiverDispatcher` instead of `DualCaseERC721Receiver` (#1163)
+- `ERC1155Component` now uses `IERC1155ReceiverDispatcher` instead of `DualCaseERC1155Receiver` (#1163)
+
+## 0.17.0 (2024-09-23)
+
+### Added
+
+- `into_base_16_string_no_padding` function to the test helpers (#1137)
+- SRC9 (OutsideExecution) component (#1150)
+- Vesting component and VestingWallet preset (#1116)
+
+### Changed (Breaking)
+
+- Bump scarb to v2.8.2 (#1137)
+- Bump snforge to 0.30.0 (#1137)
+- `declare_class`, `declare_and_deploy`, and `declare_and_deploy_at` will skip declaration if the contract is already declared (#1137)
+- Bump edition to 2024_07 (#1138)
+- `execute_calls` function from account utils (#1150)
+  - calls param type changed from `Array<Call>` to `Span<Call>`
+
+### Deprecated
+
+- DualCase dispatchers
+
+## 0.16.0 (2024-08-30)
+
+### Added
+
+- ERC721Enumerable component (#983)
+- ERC2981 (NFT Royalty Standard) component (#1091)
+- `merkle_tree` package with utilities to verify proofs and multi proofs (#1101)
+
+### Changed
+
+- Bump snforge to v0.27.0 (#1107)
+- Bump scarb to v2.8.0 (#1120)
+
+### Changed (Breaking)
+
+- Changed ABI suffix to Trait in dual case account and eth account modules (#1096)
+  - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
+  - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
+- Removed `_accept_ownership` from `OwnableComponent::InternalImpl`
+
+### Fixed
+
+- `OwnableTwoStep` allowing a pending owner to accept ownership after the original owner has renounced ownership (#1119)
+
+## 0.15.1 (2024-08-13)
+
+### Changed
+
+- Remove token dependency from account package (#1100)
+- Fix docsite links (#1094)
 
 ## 0.15.0 (2024-08-08)
 
@@ -63,7 +405,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Trace` and `Checkpoint` structs are not public anymore, since they are intended to be used in `ERC20Votes`, and not as generic utilities.
   - `StorageArray` is not public anymore, since this implementation is specific to `ERC20Votes`, and is not intended as a generic utility, but as a temporary solution until Starknet native implementation arrives.
 
-- Apply underscore pattern to modules (#993)
+- Apply underscore pattern to modules (#993):
   - AccessControlComponent
     - `_set_role_admin` function renamed to `set_role_admin`
   - PausableComponent
@@ -182,7 +524,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
+- Non-standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
 
 ## 0.8.1 (2024-01-23)
 

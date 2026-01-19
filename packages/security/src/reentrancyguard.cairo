@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (security/reentrancyguard.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0 (security/src/reentrancyguard.cairo)
 
 /// # ReentrancyGuard Component
 ///
@@ -7,9 +7,11 @@
 /// to a function.
 #[starknet::component]
 pub mod ReentrancyGuardComponent {
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+
     #[storage]
-    struct Storage {
-        ReentrancyGuard_entered: bool
+    pub struct Storage {
+        pub ReentrancyGuard_entered: bool,
     }
 
     pub mod Errors {
@@ -18,7 +20,7 @@ pub mod ReentrancyGuardComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         /// Prevents a contract's function from calling itself or another protected function,
         /// directly or indirectly.

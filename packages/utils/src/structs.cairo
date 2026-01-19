@@ -1,2 +1,3 @@
 pub mod checkpoint;
-pub mod storage_array;
+
+pub use checkpoint::{Checkpoint, Trace};

@@ -1,9 +1,10 @@
-use openzeppelin_security::ReentrancyGuardComponent::InternalImpl;
-use openzeppelin_security::ReentrancyGuardComponent;
-use openzeppelin_security::tests::mocks::reentrancy_mocks::{
-    ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
+use openzeppelin_test_common::mocks::security::{
+    IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait, ReentrancyMock,
 };
 use openzeppelin_testing as utils;
+use starknet::storage::StoragePointerReadAccess;
+use crate::ReentrancyGuardComponent;
+use crate::ReentrancyGuardComponent::InternalImpl;
 
 type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
 
@@ -35,7 +36,7 @@ fn test_reentrancy_guard_start() {
 }
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
+#[should_panic(expected: 'ReentrancyGuard: reentrant call')]
 fn test_reentrancy_guard_start_when_started() {
     let mut state = COMPONENT_STATE();
 
@@ -63,7 +64,7 @@ fn test_reentrancy_guard_end() {
 //
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
+#[should_panic(expected: 'ReentrancyGuard: reentrant call')]
 fn test_remote_callback() {
     let contract = deploy_mock();
 
@@ -75,14 +76,14 @@ fn test_remote_callback() {
 }
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
+#[should_panic(expected: 'ReentrancyGuard: reentrant call')]
 fn test_local_recursion() {
     let contract = deploy_mock();
     contract.count_local_recursive(10);
 }
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
+#[should_panic(expected: 'ReentrancyGuard: reentrant call')]
 fn test_external_recursion() {
     let contract = deploy_mock();
     contract.count_external_recursive(10);

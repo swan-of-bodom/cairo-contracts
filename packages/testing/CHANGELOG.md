@@ -1,0 +1,117 @@
+<!-- markdownlint-disable MD024 -->
+
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+
+- Bump snforge to v0.55.0 (#1631)
+
+## 6.3.0 (2025-12-24)
+
+- Bump snforge to v0.54.1 (#1621)
+
+## 6.2.0 (2025-12-11)
+
+- Bump snforge to v0.53.0 (#1610)
+
+## 6.1.0 (2025-11-12)
+
+- Bump snforge to v0.52.0 (#1568)
+- Bump snforge to v0.51.2 (#1563)
+
+## 6.0.0 (2025-10-22)
+
+### Changed (Breaking)
+
+- Bump snforge to v0.51.1 (#1555)
+
+### Removed
+
+- Removed `assert_entrypoint_not_found_error` from snforge updating the panic error message format (#1555)
+- Removed `FuzzableContractAddress` and `FuzzableBool` implementations as they are now provided by snforge (#1555)
+
+## 5.0.0 (2025-10-01)
+
+### Changed (Breaking)
+
+- Bump snforge to v0.50.0 (#1536)
+
+## 4.7.0 (2025-09-08)
+
+### Changed
+
+- Bump snforge to v0.49.0 (#1520)
+
+## 4.6.0 (2025-08-18)
+
+### Added
+
+- The `ExpectedEvent` trait and impl (#1472)
+
+### Changed
+
+- Bump snforge to v0.48.1 (#1498)
+
+## 4.5.0 (2025-08-12)
+
+### Changed
+
+- Bump snforge to v0.48.0 (#1493)
+
+## 4.4.0 (2025-07-31)
+
+### Changed
+
+- Bump snforge to v0.47.0 (#1482)
+
+## 4.3.0 (2025-07-10)
+
+### Changed
+
+- Bump snforge to v0.46.0 (#1466)
+
+## 4.2.0 (2025-06-20)
+
+### Changed
+
+- Bump snforge to v0.45.0 (#1456)
+
+## 4.1.0 (2025-05-29)
+
+### Changed
+
+- Bump snforge to v0.44.0 (#1439)
+
+## 4.0.1 (2025-05-26)
+
+### Changed
+
+- Bump snforge to v0.43.1 (#1436)
+
+## 4.0.0 (2025-05-08)
+
+### Changed (Breaking)
+
+- Bump snforge to v0.42.0 (#1429)
+
+## 3.0.0 (2025-04-11)
+
+### Changed (Breaking)
+
+- Bump snforge to v0.41.0 (#1409)
+- Bump snforge to v0.40.0 (#1407)
+
+## 2.0.0 (2025-03-11)
+
+### Changed (Breaking)
+
+- Bump snforge to v0.38.3 (#1366)
+- Update `openzeppelin_testing::events` logic (#1358)
+  - Add EventSpyQueue extension to EventSpyExt
+  - Update EventSpyExt implementation to use EventSpyQueue
+- Update functions to simulate constant contract addresses into values (#1373)

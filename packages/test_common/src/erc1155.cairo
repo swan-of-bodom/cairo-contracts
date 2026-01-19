@@ -1,22 +1,15 @@
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{PUBKEY, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2};
-use openzeppelin_testing::events::EventSpyExt;
-use openzeppelin_token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
-use openzeppelin_token::erc1155::ERC1155Component;
-use snforge_std::EventSpy;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 pub fn setup_receiver() -> ContractAddress {
-    utils::declare_and_deploy("SnakeERC1155ReceiverMock", array![])
-}
-
-pub fn setup_camel_receiver() -> ContractAddress {
-    utils::declare_and_deploy("CamelERC1155ReceiverMock", array![])
+    utils::declare_and_deploy("DualCaseERC1155ReceiverMock", array![])
 }
 
 pub fn setup_account() -> ContractAddress {
     let calldata = array![PUBKEY];
-    utils::declare_and_deploy("SnakeAccountMock", calldata)
+    utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 
 pub fn deploy_another_account_at(existing: ContractAddress, target_address: ContractAddress) {
@@ -47,11 +40,13 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         contract: ContractAddress,
         owner: ContractAddress,
         operator: ContractAddress,
-        approved: bool
+        approved: bool,
     ) {
-        let expected = ERC1155Component::Event::ApprovalForAll(
-            ApprovalForAll { owner, operator, approved }
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("ApprovalForAll"))
+            .key(owner)
+            .key(operator)
+            .data(approved);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -60,7 +55,7 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         contract: ContractAddress,
         owner: ContractAddress,
         operator: ContractAddress,
-        approved: bool
+        approved: bool,
     ) {
         self.assert_event_approval_for_all(contract, owner, operator, approved);
         self.assert_no_events_left_from(contract);
@@ -73,11 +68,15 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        value: u256
+        value: u256,
     ) {
-        let expected = ERC1155Component::Event::TransferSingle(
-            TransferSingle { operator, from, to, id: token_id, value }
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransferSingle"))
+            .key(operator)
+            .key(from)
+            .key(to)
+            .data(token_id)
+            .data(value);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -88,7 +87,7 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        value: u256
+        value: u256,
     ) {
         self.assert_event_transfer_single(contract, operator, from, to, token_id, value);
         self.assert_no_events_left_from(contract);
@@ -101,11 +100,15 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         from: ContractAddress,
         to: ContractAddress,
         token_ids: Span<u256>,
-        values: Span<u256>
+        values: Span<u256>,
     ) {
-        let expected = ERC1155Component::Event::TransferBatch(
-            TransferBatch { operator, from, to, ids: token_ids, values }
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransferBatch"))
+            .key(operator)
+            .key(from)
+            .key(to)
+            .data(token_ids)
+            .data(values);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -116,7 +119,7 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         from: ContractAddress,
         to: ContractAddress,
         token_ids: Span<u256>,
-        values: Span<u256>
+        values: Span<u256>,
     ) {
         self.assert_event_transfer_batch(contract, operator, from, to, token_ids, values);
         self.assert_no_events_left_from(contract);

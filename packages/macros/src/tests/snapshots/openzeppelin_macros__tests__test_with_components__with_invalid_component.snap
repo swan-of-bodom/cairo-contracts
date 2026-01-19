@@ -1,0 +1,23 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+#[starknet::contract]
+pub mod MyContract {
+    #[storage]
+    pub struct Storage {}
+}
+
+
+Diagnostics:
+
+====
+Error: ERC6000 is not in the list of allowed components.
+====
+
+AuxData:
+
+None

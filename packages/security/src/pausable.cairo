@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (security/pausable.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0 (security/src/pausable.cairo)
 
 /// # Pausable Component
 ///
@@ -8,33 +8,32 @@
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
 pub mod PausableComponent {
-    use openzeppelin_security::interface::IPausable;
-
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
+    use openzeppelin_interfaces::pausable::IPausable;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress, get_caller_address};
 
     #[storage]
-    struct Storage {
-        Pausable_paused: bool
+    pub struct Storage {
+        pub Pausable_paused: bool,
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         Paused: Paused,
         Unpaused: Unpaused,
     }
 
     /// Emitted when the pause is triggered by `account`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Paused {
-        pub account: ContractAddress
+        pub account: ContractAddress,
     }
 
     /// Emitted when the pause is lifted by `account`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Unpaused {
-        pub account: ContractAddress
+        pub account: ContractAddress,
     }
 
     pub mod Errors {
@@ -44,7 +43,7 @@ pub mod PausableComponent {
 
     #[embeddable_as(PausableImpl)]
     impl Pausable<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of IPausable<ComponentState<TContractState>> {
         /// Returns true if the contract is paused, and false otherwise.
         fn is_paused(self: @ComponentState<TContractState>) -> bool {
@@ -54,7 +53,7 @@ pub mod PausableComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         /// Makes a function only callable when the contract is not paused.
         fn assert_not_paused(self: @ComponentState<TContractState>) {

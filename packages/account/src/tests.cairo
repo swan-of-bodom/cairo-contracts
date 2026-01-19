@@ -1,14 +1,6 @@
-pub(crate) mod mocks;
+mod extensions;
 
-#[cfg(test)]
 mod test_account;
-#[cfg(test)]
-mod test_dual_account;
-#[cfg(test)]
-mod test_dual_eth_account;
-#[cfg(test)]
 mod test_eth_account;
-#[cfg(test)]
-mod test_secp256k1;
-#[cfg(test)]
+mod test_secp256_point;
 mod test_signature;

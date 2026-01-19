@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (presets/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0 (presets/src/erc1155.cairo)
 
 /// # ERC1155Upgradeable Preset
 ///
@@ -11,11 +11,11 @@
 #[starknet::contract]
 pub mod ERC1155Upgradeable {
     use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_interfaces::upgrades::IUpgradeable;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use openzeppelin_upgrades::UpgradeableComponent;
-    use openzeppelin_upgrades::interface::IUpgradeable;
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
@@ -36,15 +36,15 @@ pub mod ERC1155Upgradeable {
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage
+        pub upgradeable: UpgradeableComponent::Storage,
     }
 
     #[event]
@@ -57,7 +57,7 @@ pub mod ERC1155Upgradeable {
         #[flat]
         SRC5Event: SRC5Component::Event,
         #[flat]
-        UpgradeableEvent: UpgradeableComponent::Event
+        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     /// Assigns `owner` as the contract owner.
@@ -76,7 +76,7 @@ pub mod ERC1155Upgradeable {
         recipient: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>,
-        owner: ContractAddress
+        owner: ContractAddress,
     ) {
         self.ownable.initializer(owner);
         self.erc1155.initializer(base_uri);

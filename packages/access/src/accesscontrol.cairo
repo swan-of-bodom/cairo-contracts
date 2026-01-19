@@ -1,7 +1,6 @@
 pub mod accesscontrol;
-pub mod dual_accesscontrol;
-pub mod interface;
+pub mod account_role_info;
+pub mod extensions;
 
 pub use accesscontrol::AccessControlComponent;
-
-pub const DEFAULT_ADMIN_ROLE: felt252 = 0;
+pub use accesscontrol::AccessControlComponent::DEFAULT_ADMIN_ROLE;

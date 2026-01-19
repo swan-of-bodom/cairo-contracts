@@ -1,11 +1,11 @@
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::erc721::IERC721_RECEIVER_ID;
+use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin_testing::constants::{OWNER, OPERATOR, TOKEN_ID};
-use openzeppelin_token::erc721::ERC721ReceiverComponent::{
-    ERC721ReceiverImpl, ERC721ReceiverCamelImpl, InternalImpl
+use openzeppelin_test_common::mocks::erc721::DualCaseERC721ReceiverMock;
+use openzeppelin_testing::constants::{OPERATOR, OWNER, TOKEN_ID};
+use crate::erc721::ERC721ReceiverComponent::{
+    ERC721ReceiverCamelImpl, ERC721ReceiverImpl, InternalImpl,
 };
-use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
-use openzeppelin_token::tests::mocks::erc721_receiver_mocks::DualCaseERC721ReceiverMock;
 
 fn STATE() -> DualCaseERC721ReceiverMock::ContractState {
     DualCaseERC721ReceiverMock::contract_state_for_testing()
@@ -30,11 +30,11 @@ fn test_on_erc721_received() {
 
     let on_erc721_received = state
         .erc721_receiver
-        .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, data.span());
+        .on_erc721_received(OPERATOR, OWNER, TOKEN_ID, data.span());
     assert_eq!(on_erc721_received, IERC721_RECEIVER_ID, "Should return receiver ID");
 
     let onERC721Received = state
         .erc721_receiver
-        .onERC721Received(OPERATOR(), OWNER(), TOKEN_ID, data.span());
+        .onERC721Received(OPERATOR, OWNER, TOKEN_ID, data.span());
     assert_eq!(onERC721Received, IERC721_RECEIVER_ID, "Should return receiver ID");
 }

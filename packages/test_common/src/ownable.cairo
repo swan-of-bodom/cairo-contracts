@@ -1,7 +1,4 @@
-use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferred;
-use openzeppelin_access::ownable::OwnableComponent;
-use openzeppelin_testing::EventSpyExt;
-use snforge_std::EventSpy;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 #[generate_trait]
@@ -10,7 +7,7 @@ pub impl OwnableSpyHelpersImpl of OwnableSpyHelpers {
         ref self: EventSpy,
         contract: ContractAddress,
         previous_owner: ContractAddress,
-        new_owner: ContractAddress
+        new_owner: ContractAddress,
     ) {
         self.assert_event_ownership_transferred(contract, previous_owner, new_owner);
         self.assert_no_events_left_from(contract);
@@ -20,11 +17,12 @@ pub impl OwnableSpyHelpersImpl of OwnableSpyHelpers {
         ref self: EventSpy,
         contract: ContractAddress,
         previous_owner: ContractAddress,
-        new_owner: ContractAddress
+        new_owner: ContractAddress,
     ) {
-        let expected = OwnableComponent::Event::OwnershipTransferred(
-            OwnershipTransferred { previous_owner, new_owner }
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("OwnershipTransferred"))
+            .key(previous_owner)
+            .key(new_owner);
         self.assert_emitted_single(contract, expected);
     }
 }

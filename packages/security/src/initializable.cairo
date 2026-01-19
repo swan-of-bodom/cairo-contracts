@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (security/initializable.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0 (security/src/initializable.cairo)
 
 /// # Initializable Component
 ///
@@ -8,11 +8,12 @@
 /// initial state in scenarios where a constructor cannot be used.
 #[starknet::component]
 pub mod InitializableComponent {
-    use openzeppelin_security::interface::IInitializable;
+    use openzeppelin_interfaces::initializable::IInitializable;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
-    struct Storage {
-        Initializable_initialized: bool
+    pub struct Storage {
+        pub Initializable_initialized: bool,
     }
 
     pub mod Errors {
@@ -21,9 +22,9 @@ pub mod InitializableComponent {
 
     #[embeddable_as(InitializableImpl)]
     impl Initializable<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of IInitializable<ComponentState<TContractState>> {
-        /// Returns true if the using contract executed `initialize`.
+        /// Returns whether the contract has been initialized.
         fn is_initialized(self: @ComponentState<TContractState>) -> bool {
             self.Initializable_initialized.read()
         }
@@ -31,9 +32,9 @@ pub mod InitializableComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        /// Ensures the calling function can only be called once.
+        /// Ensures that the calling function can only be called once.
         ///
         /// Requirements:
         ///

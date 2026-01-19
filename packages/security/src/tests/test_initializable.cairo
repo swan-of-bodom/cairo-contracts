@@ -1,6 +1,6 @@
-use openzeppelin_security::InitializableComponent::{InitializableImpl, InternalImpl};
-use openzeppelin_security::InitializableComponent;
-use openzeppelin_security::tests::mocks::initializable_mocks::InitializableMock;
+use openzeppelin_test_common::mocks::security::InitializableMock;
+use crate::InitializableComponent;
+use crate::InitializableComponent::{InitializableImpl, InternalImpl};
 
 type ComponentState = InitializableComponent::ComponentState<InitializableMock::ContractState>;
 
@@ -17,7 +17,7 @@ fn test_initialize() {
 }
 
 #[test]
-#[should_panic(expected: ('Initializable: is initialized',))]
+#[should_panic(expected: 'Initializable: is initialized')]
 fn test_initialize_when_initialized() {
     let mut state = COMPONENT_STATE();
     state.initialize();

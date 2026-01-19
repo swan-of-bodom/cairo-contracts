@@ -2,8 +2,12 @@
 members = [
     "packages/access",
     "packages/account",
+    "packages/finance",
+    "packages/interfaces",
     "packages/governance",
     "packages/introspection",
+    "packages/macros",
+    "packages/merkle_tree",
     "packages/presets",
     "packages/security",
     "packages/token",
@@ -15,38 +19,43 @@ members = [
 
 [package]
 name = "openzeppelin"
+readme = "README.md"
 version.workspace = true
+keywords.workspace = true
+edition.workspace = true
 
 [workspace.package]
-version = "0.15.0"
-edition = "2023_11"
-cairo-version = "2.7.0"
-scarb-version = "2.7.0"
+version = "3.0.0"
+edition = "2024_07"
+cairo-version = "2.15.0"
+scarb-version = "2.15.1"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
-readme = "README.md"
 repository = "https://github.com/OpenZeppelin/cairo-contracts"
 license-file = "LICENSE"
 keywords = [
     "openzeppelin",
     "starknet",
-    "cairo",
     "contracts",
     "security",
-    "standards",
+    "standards"
 ]
 
 [workspace.dependencies]
-starknet = "2.7.0"
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.26.0" }
+assert_macros = "2.15.1"
+starknet = "2.15.1"
+snforge_std = "0.55.0"
 
 [dependencies]
 starknet.workspace = true
 openzeppelin_access = { path = "packages/access" }
 openzeppelin_account = { path = "packages/account" }
+openzeppelin_finance = { path = "packages/finance" }
+openzeppelin_interfaces = { path = "packages/interfaces" }
 openzeppelin_governance = { path = "packages/governance" }
 openzeppelin_introspection = { path = "packages/introspection" }
+openzeppelin_merkle_tree = { path = "packages/merkle_tree" }
 openzeppelin_presets = { path = "packages/presets" }
 openzeppelin_security = { path = "packages/security" }
 openzeppelin_token = { path = "packages/token" }
@@ -68,5 +77,14 @@ casm = false
 [workspace.tool.fmt]
 sort-module-level-items = true
 
+[workspace.tool.scarb]
+allow-prebuilt-plugins = ["snforge_std"]
+
 [tool]
 fmt.workspace = true
+scarb.workspace = true
+
+[profile.dev.cairo]
+unstable-add-statements-functions-debug-info = true
+unstable-add-statements-code-locations-debug-info = true
+inlining-strategy = "avoid"
